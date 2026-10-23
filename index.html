@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আন-নূর (An-Noor) - ইসলামিক অ্যাপ</title>
+    <style>
+        :root {
+            --primary-bg: #0d1b1e;
+            --card-bg: #162a2d;
+            --accent-gold: #dfb15b;
+            --text-light: #e8f1f2;
+            --text-muted: #99aab0;
+            --border-color: #244247;
+            --highlight: #1b3d42;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-light);
+            padding-bottom: 30px;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 2px solid var(--accent-gold);
+            padding: 15px 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            color: var(--accent-gold);
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            background: var(--card-bg);
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--accent-gold);
+            color: var(--text-light);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background: var(--accent-gold);
+            color: var(--primary-bg);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        .surah-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .surah-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .surah-card:hover {
+            border-color: var(--accent-gold);
+            transform: translateY(-3px);
+        }
+
+        .surah-info h3 {
+            color: var(--accent-gold);
+            font-size: 1.1rem;
+        }
+
+        .surah-info p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .surah-arabic {
+            font-size: 1.3rem;
+            color: var(--accent-gold);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Detail View */
+        .back-btn {
+            background: var(--accent-gold);
+            color: var(--primary-bg);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .player-controls {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--accent-gold);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .play-all-btn {
+            background: var(--accent-gold);
+            color: var(--primary-bg);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .ayah-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .ayah-arabic {
+            font-size: 1.6rem;
+            text-align: right;
+            color: var(--accent-gold);
+            margin-bottom: 10px;
+            line-height: 1.8;
+        }
+
+        .ayah-translation {
+            font-size: 1rem;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .ayah-translation:hover {
+            background: var(--highlight);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--accent-gold);
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .modal-close {
+            background: var(--accent-gold);
+            color: var(--primary-bg);
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            float: right;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Amals & Hadith */
+        .amal-card, .hadith-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .counter-btn {
+            background: var(--accent-gold);
+            color: var(--primary-bg);
+            border: none;
+            padding: 5px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>আন-নূর (An-Noor)</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">কুরআন, হাদীস ও দৈনন্দিন আমল</p>
+    </header>
+
+    <nav>
+        <button class="nav-btn active" onclick="switchTab('quran')">আল-কুরআন</button>
+        <button class="nav-btn" onclick="switchTab('hadith')">হাদীস</button>
+        <button class="nav-btn" onclick="switchTab('amals')">বিশেষ আমল</button>
+    </nav>
+
+    <div class="container">
+
+        <!-- Quran Section -->
+        <div id="quran" class="section active">
+            <input type="text" class="search-box" placeholder="সূরা খুঁজুন (যেমন: আল-ফাতিহা)..." onkeyup="filterSurahs(this.value)">
+            
+            <div id="surah-list" class="surah-grid">
+                <!-- Surahs will load dynamically -->
+            </div>
+
+            <div id="surah-detail" style="display: none;">
+                <button class="back-btn" onclick="closeSurahDetail()">← মূল তালিকায় ফিরে যান</button>
+                <div class="player-controls">
+                    <h2 id="detail-title" style="color: var(--accent-gold); margin-bottom: 10px;"></h2>
+                    <button class="play-all-btn" onclick="playFullSurah()">▶ সম্পূর্ণ সূরা অডিও প্লে করুন</button>
+                    <audio id="audio-player" style="display:none;"></audio>
+                </div>
+                <div id="ayahs-container"></div>
+            </div>
+        </div>
+
+        <!-- Hadith Section -->
+        <div id="hadith" class="section">
+            <h2 style="color: var(--accent-gold); margin-bottom: 15px;">বাছাইকৃত সহীহ হাদীস</h2>
+            <div class="hadith-card">
+                <h3 style="color: var(--accent-gold);">সহীহ বুখারী - নিয়ত</h3>
+                <p style="margin-top: 8px;">"প্রত্যেক কাজের ফল নিয়তের ওপর নির্ভরশীল।"</p>
+            </div>
+            <div class="hadith-card">
+                <h3 style="color: var(--accent-gold);">সহীহ মুসলিম - পবিত্রতা</h3>
+                <p style="margin-top: 8px;">"পবিত্রতা ঈমানের অর্ধেক।"</p>
+            </div>
+        </div>
+
+        <!-- Amals Section -->
+        <div id="amals" class="section">
+            <h2 style="color: var(--accent-gold); margin-bottom: 15px;">দৈনন্দিন ও বিশেষ আমল</h2>
+            
+            <div class="amal-card">
+                <h3 style="color: var(--accent-gold);">শুক্রবারের বিশেষ আমল (সূরা কাহফ)</h3>
+                <p style="margin-top: 5px;">জুমুআর দিনে সূরা কাহফ তিলওয়াত করলে দুই জুমুআর মধ্যবর্তী সময় নূর দ্বারা উজ্জ্বল হয়ে থাকে।</p>
+            </div>
+
+            <div class="amal-card">
+                <h3 style="color: var(--accent-gold);">সকাল- সন্ধ্যার জিকির (সুফহানআল্লাহ)</h3>
+                <p style="margin-top: 5px;">প্রতিদিন ১০০ বার 'সুবহানাল্লাহি ওয়া বিহামদিহি' পাঠ করা।</p>
+                <button class="counter-btn" onclick="countTasbih(this)">তাসবিহ গণনা: <span class="count">০</span></button>
+            </div>
+
+            <div class="amal-card">
+                <h3 style="color: var(--accent-gold);">বিপদ ও নজর মুক্তির দোয়া</h3>
+                <p style="margin-top: 5px; font-style: italic;">"লা ইলাহা ইল্লা আন্তা সুবহানাকা ইন্নি কুন্তু মিনাজ জ্বালিমীন।"</p>
+                <button class="counter-btn" onclick="countTasbih(this)">তাসবিহ গণনা: <span class="count">০</span></button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Tafsir Modal -->
+    <div id="tafsir-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">বন্ধ করুন</button>
+            <h3 style="color: var(--accent-gold); margin-bottom: 10px;">সংক্ষিপ্ত তাফসীর</h3>
+            <p id="tafsir-text" style="line-height: 1.6;"></p>
+        </div>
+    </div>
+
+    <script>
+        const surahs = [
+            { id: 1, name: "Al-Fatiha", bnName: "আল-ফাতিহা", verses: 7, type: "মক্কী" },
+            { id: 112, name: "Al-Ikhlas", bnName: "আল-ইখলাস", verses: 4, type: "মক্কী" },
+            { id: 113, name: "Al-Falaq", bnName: "আল-ফালাক", verses: 5, type: "মক্কী" },
+            { id: 114, name: "An-Nas", bnName: "আন-নাস", verses: 6, type: "মক্কী" }
+        ];
+
+        const sampleAyahs = {
+            1: [
+                { num: 1, ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", bn: "পরম করুণাময় অতি দয়ালু আল্লাহর নামে শুরু করছি।", tafsir: "এটি কুরআনের প্রথম আয়াত। যেকোনো কাজ ভালো নিয়তে শুরু করার শিক্ষা দেয়।" },
+                { num: 2, ar: "ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ", bn: "সমস্ত প্রশংসা সৃষ্টিজগতের রব্ব আল্লাহর জন্য।", tafsir: "আল্লাহ তাআলা সমস্ত মহাবিশ্বের একমাত্র স্রষ্টা ও পালনকর্তা।" }
+            ],
+            112: [
+                { num: 1, ar: "قُلْ هُوَ ٱللَّهُ أَحَدٌ", bn: "বলুন, তিনিই আল্লাহ, একক।", tafsir: "তৌহিদের মূল বাক্য। আল্লাহর কোনো শরীক নেই।" },
+                { num: 2, ar: "ٱللَّهُ ٱلصَّمَدُ", bn: "আল্লাহ অমুখাপেক্ষী।", tafsir: "সৃষ্টির সবাই তাঁর মুখাপেক্ষী, তিনি কারও ওপর নির্ভরশীল নন।" }
+            ]
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function renderSurahs() {
+            const list = document.getElementById('surah-list');
+            list.innerHTML = surahs.map(s => `
+                <div class="surah-card" onclick="openSurah(${s.id})">
+                    <div class="surah-info">
+                        <h3>${s.id}. ${s.bnName}</h3>
+                        <p>${s.type} • ${s.verses} আয়াত</p>
+                    </div>
+                    <div class="surah-arabic">${s.name}</div>
+                </div>
+            `).join('');
+        }
+
+        function openSurah(id) {
+            const surah = surahs.find(s => s.id === id);
+            document.getElementById('surah-list').style.display = 'none';
+            document.getElementById('surah-detail').style.display = 'block';
+            document.getElementById('detail-title').innerText = `${surah.bnName} (${surah.name})`;
+
+            const ayahs = sampleAyahs[id] || [
+                { num: 1, ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", bn: "অনুবাদ উপলব্ধ রয়েছে...", tafsir: "তাফসীর শীঘ্রই যুক্ত হচ্ছে।" }
+            ];
+
+            document.getElementById('ayahs-container').innerHTML = ayahs.map(a => `
+                <div class="ayah-card">
+                    <div class="ayah-arabic">${a.ar}</div>
+                    <div class="ayah-translation" onclick="showTafsir('${a.tafsir.replace(/'/g, "\\'")}')">
+                        📌 <strong>অর্থ:</strong> ${a.bn} <br><small style="color:var(--accent-gold);">(তাফসীর দেখতে ক্লিক করুন)</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function closeSurahDetail() {
+            document.getElementById('surah-list').style.display = 'grid';
+            document.getElementById('surah-detail').style.display = 'none';
+            const player = document.getElementById('audio-player');
+            player.pause();
+        }
+
+        function playFullSurah() {
+            const player = document.getElementById('audio-player');
+            // Sample Audio URL (Mishary Rashid Alafasy)
+            player.src = "https://server8.mp3quran.net/afs/001.mp3";
+            player.play();
+            alert("সূরা আল-ফাতিহা অডিও প্লে হচ্ছে...");
+        }
+
+        function showTafsir(text) {
+            document.getElementById('tafsir-text').innerText = text;
+            document.getElementById('tafsir-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('tafsir-modal').style.display = 'none';
+        }
+
+        function countTasbih(btn) {
+            const countSpan = btn.querySelector('.count');
+            let current = parseInt(countSpan.innerText) || 0;
+            countSpan.innerText = current + 1;
+        }
+
+        function filterSurahs(query) {
+            const cards = document.querySelectorAll('.surah-card');
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(query.toLowerCase()) ? 'flex' : 'none';
+            });
+        }
+
+        // Initialize
+        renderSurahs();
+    </script>
+</body>
+</html>
